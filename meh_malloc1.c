@@ -53,6 +53,12 @@ void meh_free(void *abcdefg) {
 }
 
 int main(int argc, char *argv[]) {
-
+	printf("Value of malloc_head: %p\n", malloc_head);
+	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
+	printf("Trying to meh_malloc 64 bytes!\n");
+	void *abc = meh_malloc(64);
+	printf("Value of malloc_head: %p\n", malloc_head);
+	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
+	printf("Value of abc: %p\n", abc);
 	exit(0);
 }
