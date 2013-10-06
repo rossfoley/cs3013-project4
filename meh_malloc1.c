@@ -60,9 +60,17 @@ int main(int argc, char *argv[]) {
 	printf("Value of malloc_head: %p\n", malloc_head);
 	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
 	printf("Value of abc: %p\n", abc);
-	void *def = meh_malloc(64);
+	void *def = meh_malloc(128);
 	printf("Value of malloc_head: %p\n", malloc_head);
 	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
 	printf("Value of def: %p\n", def);
+	void *ghi = meh_malloc(1024);
+	printf("Value of malloc_head: %p\n", malloc_head);
+	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
+	printf("Value of ghi: %p\n", ghi);
+	void *jkl = meh_malloc(1234);
+	printf("Value of malloc_head: %p\n", malloc_head);
+	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
+	printf("Value of ghi: %p\n", jkl);
 	exit(0);
 }
