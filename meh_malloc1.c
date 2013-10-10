@@ -5,9 +5,21 @@
 
 #define SBRK_SCALE 100
 #define CHECKSUM ~0
+#define MALLOC_OVERHEAD 20
+#define USED_OVERHEAD 8
+#define LINKED_LIST_OVERHEAD 12
+
+#define FREE_SIZE 0
+#define NEXT_PTR 1
+#define PREV_PTR 2
+#define USED_SIZE 3
+#define CHECKSUM_LOC 4
+#define USER_PTR 5
+
+#define TRUE 1
+#define FALSE 0
 
 void *malloc_head = NULL;
-int malloc_buffer_size = 0;
 
 /*
 4 bytes each:
@@ -21,37 +33,56 @@ int malloc_buffer_size = 0;
 void *meh_malloc(int size) {
 	void *start = malloc_head;
 	int malloc_size = size * SBRK_SCALE;
+	int searching = TRUE;
 
 	if (malloc_head == NULL) {
 		malloc_head = sbrk(malloc_size);
 
-		if (malloc_head == (void *) -1) {
+		if ((int) malloc_head == -1) {
 			return NULL;
 		} else {
-			malloc_buffer_size += malloc_size;
 			start = malloc_head;
+			((int *) malloc_head)[0] = malloc_size - LINKED_LIST_OVERHEAD; // Set the free size
 		}
 	}
 
-	while (((int *)start)[0] != 0) {
-		// Set start to be the second 4 bytes of the current start
-		// This is the pointer to the next item in the linked list
-		start = (void *) ((int *) start)[1];
-		if (start >= (malloc_head + malloc_buffer_size - (size + 8))) {
-			if ((int) sbrk(malloc_size) == -1) {
+	while (searching) {
+		if (((int *) start)[FREE_SIZE] >= size + MALLOC_OVERHEAD) {
+			searching = FALSE;
+		} else if ((void *) ((int*) start)[NEXT_PTR] == NULL) {
+			// Now check to see if we need to sbrk again and that we are at the last linked list node
+			void *next_loc = sbrk(malloc_size);
+
+			if ((int) next_loc == -1) {
 				return NULL;
 			} else {
-				malloc_buffer_size += malloc_size;
+				// Since sbrk may not give us continuous memory,
+				// so set up a linked list header at the new memory location
+				((int *) start)[NEXT_PTR] = (int) next_loc;
+				((int *) next_loc)[FREE_SIZE] = malloc_size - LINKED_LIST_OVERHEAD;
+				((int *) next_loc)[NEXT_PTR] = (int) NULL;
+				((int *) next_loc)[PREV_PTR] = (int) start;
 			}
+		} else {
+			// We haven't hit the last node, so just go to the next node
+			start = (void *) ((int *) start)[NEXT_PTR];
 		}
 	}
 
-	// The first 4 bytes are the size of the memory malloc'd
-	((int *) start)[0] = size;
-	// The second 4 bytes are a pointer to the next chunk of memory
-	((int *) start)[1] = (int) start + size + 8;
+	// Set up the headers for the next free spot
+	if (((int *) start)[NEXT_PTR] == (int) NULL) {
+		void *next_header = start + size + MALLOC_OVERHEAD;
+		((int *) next_header)[FREE_SIZE] = ((int *) start)[FREE_SIZE] - (USED_OVERHEAD + size);
+		((int *) next_header)[NEXT_PTR] = (int) NULL;
+		((int *) next_header)[PREV_PTR] = start;
+	}
 
-	return &((int *) start)[2];
+	// Update the headers for this allocation
+	((int *) start)[FREE_SIZE] = 0;
+	((int *) start)[USED_SIZE] = size;
+	((int *) start)[CHECKSUM_LOC] = CHECKSUM;
+
+	return &((int *) start)[USER_PTR];
 }
 
 void meh_free(void *abcdefg) {
