@@ -74,7 +74,7 @@ void *meh_malloc(int size) {
 		void *next_header = start + size + MALLOC_OVERHEAD;
 		((int *) next_header)[FREE_SIZE] = ((int *) start)[FREE_SIZE] - (USED_OVERHEAD + size);
 		((int *) next_header)[NEXT_PTR] = (int) NULL;
-		((int *) next_header)[PREV_PTR] = start;
+		((int *) next_header)[PREV_PTR] = (int) start;
 	}
 
 	// Update the headers for this allocation
@@ -92,30 +92,29 @@ void meh_free(void *abcdefg) {
 int main(int argc, char *argv[]) {
 	printf("Initial Values\n");
 	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
 	printf("\n");
 	printf("Trying to meh_malloc 64 bytes.\n");
+
 	void *abc = meh_malloc(64);
 	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
 	printf("Value of abc: %p\n", abc);
 	printf("\n");
 	printf("Trying to meh_malloc 128 more bytes.\n");
+
 	void *def = meh_malloc(128);
 	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
 	printf("Value of def: %p\n", def);
 	printf("\n");
 	printf("Trying to meh_malloc 1024 more bytes.\n");
+
 	void *ghi = meh_malloc(1024);
 	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
 	printf("Value of ghi: %p\n", ghi);
 	printf("\n");
 	printf("Trying to meh_malloc 1234 more bytes.\n");
+	
 	void *jkl = meh_malloc(1234);
 	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of malloc_buffer_size: %i\n", malloc_buffer_size);
 	printf("Value of ghi: %p\n", jkl);
 	exit(0);
 }
