@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <error.h>
+#include <strings.h>
 
 #define SBRK_SCALE 100
 #define CHECKSUM ~0
@@ -30,7 +31,7 @@ void *malloc_head = NULL;
 5. Checksum
 */
 
-void *meh_malloc(size_t size) {
+void *malloc(size_t size) {
 	void *start = malloc_head;
 	int malloc_size = size * SBRK_SCALE;
 	int searching = TRUE;
@@ -85,36 +86,31 @@ void *meh_malloc(size_t size) {
 	return &((int *) start)[USER_PTR];
 }
 
-void meh_free(void *abcdefg) {
-	// Do nothing for now
+void free(void *ptr) {
+	((int *) ptr)[FREE_SIZE] = ((int *) ptr)[USED_SIZE] + USED_OVERHEAD;
 }
 
-int main(int argc, char *argv[]) {
-	printf("Initial Values\n");
-	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("\n");
-	printf("Trying to meh_malloc 64 bytes.\n");
+void *calloc(size_t nmem, size_t size) {
+	if (nmem == 0) {
+		return NULL;
+	} else {
+		void *user_ptr = malloc(nmem * size);
+		bzero(user_ptr, nmem * size);
+		return user_ptr;
+	}
+}
 
-	void *abc = meh_malloc(64);
-	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of abc: %p\n", abc);
-	printf("\n");
-	printf("Trying to meh_malloc 128 more bytes.\n");
-
-	void *def = meh_malloc(128);
-	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of def: %p\n", def);
-	printf("\n");
-	printf("Trying to meh_malloc 1024 more bytes.\n");
-
-	void *ghi = meh_malloc(1024);
-	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of ghi: %p\n", ghi);
-	printf("\n");
-	printf("Trying to meh_malloc 1234 more bytes.\n");
-
-	void *jkl = meh_malloc(1234);
-	printf("Value of malloc_head: %p\n", malloc_head);
-	printf("Value of ghi: %p\n", jkl);
-	exit(0);
+void *realloc(void *ptr, size_t size) {
+	if (ptr == NULL && size == 0) {
+		return NULL
+	} else if (ptr == NULL && size > 0) {
+		return malloc(size);
+	} else if (ptr != NULL && size == 0) {
+		free(ptr);
+		return NULL;
+	} else {
+		void *new_ptr = malloc(size);
+		bcopy(ptr, new_ptr, ((int *)ptr)[USED_SIZE]);
+		return new_ptr;
+	}
 }
