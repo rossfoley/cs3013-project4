@@ -1,3 +1,4 @@
+#include <malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -87,7 +88,7 @@ void *malloc(size_t size) {
 }
 
 void free(void *ptr) {
-	((int *) ptr)[FREE_SIZE] = ((int *) ptr)[USED_SIZE] + USED_OVERHEAD;
+	((int *) ptr)[FREE_SIZE] = ((int *) ptr - 8)[0] + USED_OVERHEAD;
 }
 
 void *calloc(size_t nmem, size_t size) {
@@ -102,7 +103,7 @@ void *calloc(size_t nmem, size_t size) {
 
 void *realloc(void *ptr, size_t size) {
 	if (ptr == NULL && size == 0) {
-		return NULL
+		return NULL;
 	} else if (ptr == NULL && size > 0) {
 		return malloc(size);
 	} else if (ptr != NULL && size == 0) {
@@ -110,7 +111,7 @@ void *realloc(void *ptr, size_t size) {
 		return NULL;
 	} else {
 		void *new_ptr = malloc(size);
-		bcopy(ptr, new_ptr, ((int *)ptr)[USED_SIZE]);
+		bcopy(ptr, new_ptr, ((int *) ptr - 8)[0]);
 		return new_ptr;
 	}
 }
