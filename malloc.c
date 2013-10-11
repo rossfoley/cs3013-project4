@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <error.h>
 #include <strings.h>
+#include <string.h>
 
 #define SBRK_SCALE 100
 #define CHECKSUM ~0
@@ -20,6 +21,8 @@
 
 #define TRUE 1
 #define FALSE 0
+
+#define MIN(a,b) a < b ? a : b
 
 void *malloc_head = NULL;
 
@@ -90,7 +93,7 @@ void *malloc(size_t size) {
 void free(void *ptr) {
 	if (ptr != NULL) {
 		// Go back 20 bytes to the start of the linked list headers
-		void *node = ptr - 20;
+		void *node = ptr - MALLOC_OVERHEAD;
 		((int *) node)[FREE_SIZE] = ((int *) node)[USED_SIZE] + USED_OVERHEAD;
 	}
 }
@@ -115,7 +118,9 @@ void *realloc(void *ptr, size_t size) {
 		return NULL;
 	} else {
 		void *new_ptr = malloc(size);
-		bcopy(ptr, new_ptr, ((int *) ptr - 8)[0]);
+		void *node = ptr - MALLOC_OVERHEAD;
+		memcpy(new_ptr, ptr, ((int *) node)[USED_SIZE]);
+		free(ptr);
 		return new_ptr;
 	}
 }
