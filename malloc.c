@@ -88,7 +88,11 @@ void *malloc(size_t size) {
 }
 
 void free(void *ptr) {
-	((int *) ptr)[FREE_SIZE] = ((int *) ptr - 8)[0] + USED_OVERHEAD;
+	if (ptr != NULL) {
+		// Go back 20 bytes to the start of the linked list headers
+		void *node = ptr - 20;
+		((int *) node)[FREE_SIZE] = ((int *) node)[USED_SIZE] + USED_OVERHEAD;
+	}
 }
 
 void *calloc(size_t nmem, size_t size) {

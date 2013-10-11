@@ -29,5 +29,10 @@ int main(int argc, char *argv[]) {
 	void *jkl = malloc(1234);
 	
 	printf("Value of ghi: %p\n", jkl);
+
+	printf("Freeing abc then allocating 32 bytes\n");
+	free(abc);
+	void *a = malloc(32);
+	printf("Value of a: %p\n", a);
 	exit(0);
 }

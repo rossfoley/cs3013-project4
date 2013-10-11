@@ -1,10 +1,10 @@
-all: test_malloc malloc
+all: test_malloc malloc.o
 
-test_malloc: test_malloc.c malloc.h
-	gcc -o test_malloc test_malloc.c
+test_malloc: test_malloc.c malloc.o
+	gcc -g -o test_malloc test_malloc.c malloc.o
 
-malloc: malloc.c malloc.h
-	gcc -c malloc.c -o malloc.o
+malloc.o: malloc.c malloc.h
+	gcc -g -c malloc.c -o malloc.o
 
 clean:
-	rm -rf meh_malloc1 malloc *.o
+	rm -rf test_malloc malloc.o *.o
